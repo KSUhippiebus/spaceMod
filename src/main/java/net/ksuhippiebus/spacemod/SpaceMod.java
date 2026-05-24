@@ -1,5 +1,6 @@
 package net.ksuhippiebus.spacemod;
 
+import net.ksuhippiebus.spacemod.network.ModNetworking;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -29,6 +30,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.ksuhippiebus.spacemod.data.GlobalTimerData;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(SpaceMod.MODID)
@@ -85,6 +88,8 @@ public class SpaceMod {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        modEventBus.addListener(ModNetworking::register);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -112,5 +117,10 @@ public class SpaceMod {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+    }
+
+    @SubscribeEvent
+    public void onServerTick(ServerTickEvent.Post event) {
+        GlobalTimerData.get(event.getServer()).tick();
     }
 }

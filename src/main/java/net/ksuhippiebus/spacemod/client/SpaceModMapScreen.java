@@ -11,21 +11,64 @@ public class SpaceModMapScreen extends Screen {
     }
 
     private void fillCircle(
-        GuiGraphics graphics,
-        int centerX,
-        int centerY,
-        int radius,
-        int color
-    )
-    {
+            GuiGraphics graphics,
+            int centerX,
+            int centerY,
+            int radius,
+            int color
+    ) {
+        fillCircle(graphics, centerX, centerY, radius, color, -1);
+    }
+
+    private void fillCircle(
+            GuiGraphics graphics,
+            int centerX,
+            int centerY,
+            int radius,
+            int color,
+            int lineWidth // <= 0 = filled
+    ) {
+
+        // Filled circle
+        if (lineWidth <= 0 || lineWidth >= radius) {
+            for (int y = -radius; y <= radius; y++) {
+                int width = (int) Math.sqrt(radius * radius - y * y);
+
+                graphics.fill(
+                        centerX - width,
+                        centerY + y,
+                        centerX + width + 1,
+                        centerY + y + 1,
+                        color
+                );
+            }
+            return;
+        }
+
+        int innerRadius = radius - lineWidth;
 
         for (int y = -radius; y <= radius; y++) {
-            int width = (int) Math.sqrt(radius * radius - y * y);
+            int outerWidth = (int) Math.sqrt(radius * radius - y * y);
 
+            int innerWidth = 0;
+            if (Math.abs(y) <= innerRadius) {
+                innerWidth = (int) Math.sqrt(innerRadius * innerRadius - y * y);
+            }
+
+            // Left outline segment
             graphics.fill(
-                    centerX - width,
+                    centerX - outerWidth,
                     centerY + y,
-                    centerX + width + 1,
+                    centerX - innerWidth + 1,
+                    centerY + y + 1,
+                    color
+            );
+
+            // Right outline segment
+            graphics.fill(
+                    centerX + innerWidth,
+                    centerY + y,
+                    centerX + outerWidth + 1,
                     centerY + y + 1,
                     color
             );
@@ -40,19 +83,80 @@ public class SpaceModMapScreen extends Screen {
             int radiusY,
             int color
     ) {
+        fillEllipse(graphics, centerX, centerY, radiusX, radiusY, color, -1);
+    }
+
+    private void fillEllipse(
+            GuiGraphics graphics,
+            int centerX,
+            int centerY,
+            int radiusX,
+            int radiusY,
+            int color,
+            int lineWidth // <= 0 = filled
+    ) {
+
+        // Filled ellipse
+        if (lineWidth <= 0 || lineWidth >= Math.min(radiusX, radiusY)) {
+
+            for (int y = -radiusY; y <= radiusY; y++) {
+
+                double normalizedY = (double) (y * y) / (radiusY * radiusY);
+
+                int width = (int) (
+                        radiusX * Math.sqrt(1.0 - normalizedY)
+                );
+
+                graphics.fill(
+                        centerX - width,
+                        centerY + y,
+                        centerX + width + 1,
+                        centerY + y + 1,
+                        color
+                );
+            }
+
+            return;
+        }
+
+        int innerRadiusX = radiusX - lineWidth;
+        int innerRadiusY = radiusY - lineWidth;
 
         for (int y = -radiusY; y <= radiusY; y++) {
 
-            double normalizedY = (double)(y * y) / (radiusY * radiusY);
+            double outerNormalizedY =
+                    (double) (y * y) / (radiusY * radiusY);
 
-            int width = (int)(
-                    radiusX * Math.sqrt(1.0 - normalizedY)
+            int outerWidth = (int) (
+                    radiusX * Math.sqrt(1.0 - outerNormalizedY)
             );
 
+            int innerWidth = 0;
+
+            if (Math.abs(y) <= innerRadiusY) {
+
+                double innerNormalizedY =
+                        (double) (y * y) / (innerRadiusY * innerRadiusY);
+
+                innerWidth = (int) (
+                        innerRadiusX * Math.sqrt(1.0 - innerNormalizedY)
+                );
+            }
+
+            // Left side
             graphics.fill(
-                    centerX - width,
+                    centerX - outerWidth,
                     centerY + y,
-                    centerX + width + 1,
+                    centerX - innerWidth + 1,
+                    centerY + y + 1,
+                    color
+            );
+
+            // Right side
+            graphics.fill(
+                    centerX + innerWidth,
+                    centerY + y,
+                    centerX + outerWidth + 1,
                     centerY + y + 1,
                     color
             );
@@ -62,10 +166,6 @@ public class SpaceModMapScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-
-        if (this.minecraft != null) {
-            this.minecraft.levelRenderer.needsUpdate();
-        }
     }
 
     @Override
@@ -76,15 +176,24 @@ public class SpaceModMapScreen extends Screen {
 
         graphics.drawString(
                 this.font,
-                "Hello from my GUI",
+                "timer is: "+ClientTimerData.ticks,
                 this.width / 2 - 50,
                 this.height / 2,
                 0xFFFFFF
         );
 
-        fillCircle(graphics, 100, 100, 40, 0xFFFF0000);
+        //fillCircle(graphics, 100, 100, 40, 0xFFFF0000, 5);
 
-        fillEllipse(graphics, 250, 100, 80, 40, 0xFF00FF00);
+        //fillEllipse(graphics, 250, 100, 80, 40, 0xFF00FF00);
+
+        int radius = 100;
+
+        double speed = (Math.PI / 10) / 10;
+        double orbitDir = ClientTimerData.ticks * speed;
+
+        fillEllipse(graphics, this.width/2, this.height/2, radius, radius, 0xAAFFFFFF, 2);
+
+        fillCircle(graphics, (int)(this.width/2 + radius * Math.cos(orbitDir)), (int)(this.height/2 + radius * Math.sin(orbitDir)), 10, 0xFF00FF00);
     }
 
     @Override
