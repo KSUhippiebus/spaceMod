@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package net.ksuhippiebus.spacemod;
 
 import java.util.List;
 import java.util.Set;
