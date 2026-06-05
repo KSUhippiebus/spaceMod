@@ -5,66 +5,47 @@ import net.minecraft.client.gui.GuiGraphics;
 public class Orbit {
 
     public long Period = 30; // in ticks
-    public long Offset = 0; // in ticks
-    public long XPos = 100;
-    public long XNeg = 100;
-    public long YPos = 100;
-    public long YNeg = 100;
+    public long TimeOffset = 0; // in ticks
+    public double Radius = 100;
+    public Planet Parent = null;
+    public Vec2 Offset = new Vec2(0,0);
 
     public Orbit() {}
 
-    public Orbit(long period, long offset,
-                 long xPos, long xNeg,
-                 long yPos, long yNeg) {
-
+    public Orbit(long period, long timeOffset, double radius) {
         this.Period = period;
-        this.Offset = offset;
-        this.XPos = xPos;
-        this.XNeg = xNeg;
-        this.YPos = yPos;
-        this.YNeg = yNeg;
+        this.TimeOffset = timeOffset;
+        this.Radius = radius;
     }
 
-    public double getRadius(double angle) {
-        // normalize angle to [0, 2π)
-        angle = angle % (2.0 * Math.PI);
-        if (angle < 0) angle += 2.0 * Math.PI;
+    public Orbit(long period, long timeOffset, double radius, Vec2 offset) {
+        this.Period = period;
+        this.TimeOffset = timeOffset;
+        this.Radius = radius;
+        this.Offset = offset;
+    }
 
-        double segment = Math.PI / 2.0;
+    public Orbit(long period, long timeOffset, double radius, Planet parent) {
+        this.Period = period;
+        this.TimeOffset = timeOffset;
+        this.Radius = radius;
+        this.Parent = parent;
+    }
 
-        double t;
-        double a, b;
-
-        if (angle < segment) {
-            // 0 → 90
-            t = angle / segment;
-            a = XPos; b = YPos;
-
-        } else if (angle < 2 * segment) {
-            // 90 → 180
-            t = (angle - segment) / segment;
-            a = YPos; b = XNeg;
-
-        } else if (angle < 3 * segment) {
-            // 180 → 270
-            t = (angle - 2 * segment) / segment;
-            a = XNeg; b = YNeg;
-
-        } else {
-            // 270 → 360
-            t = (angle - 3 * segment) / segment;
-            a = YNeg; b = XPos;
-        }
-
-        return a + (b - a) * t;
+    public Orbit(long period, long timeOffset, double radius, Planet parent, Vec2 offset) {
+        this.Period = period;
+        this.TimeOffset = timeOffset;
+        this.Radius = radius;
+        this.Parent = parent;
+        this.Offset = offset;
     }
 
     public Vec2 calcPos(
         long frame
     ) {
-        double angle = (frame + Offset) * (2 * Math.PI) / Period;
+        double angle = (frame + this.TimeOffset) * (2 * Math.PI) / this.Period;
 
-        double radius = getRadius(angle);
+        double radius = this.Radius;
 
         double x = radius * Math.cos(angle);
         double y = radius * Math.sin(angle);
