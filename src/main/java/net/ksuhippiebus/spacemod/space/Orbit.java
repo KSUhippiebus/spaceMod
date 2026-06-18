@@ -1,12 +1,13 @@
 package net.ksuhippiebus.spacemod.space;
 
+import net.ksuhippiebus.spacemod.utils.Vec2;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class Orbit {
 
-    public long Period = 30; // in ticks
+    public long Period = 20; // in ticks
     public long TimeOffset = 0; // in ticks
-    public double Radius = 100;
+    public double Radius = 0;
     public Planet Parent = null;
     public Vec2 Offset = new Vec2(0,0);
 
@@ -43,6 +44,10 @@ public class Orbit {
     public Vec2 calcPos(
         long frame
     ) {
+        if (Parent == null) {
+            return Offset;
+        }
+
         double angle = (frame + this.TimeOffset) * (2 * Math.PI) / this.Period;
 
         double radius = this.Radius;
@@ -50,7 +55,7 @@ public class Orbit {
         double x = radius * Math.cos(angle);
         double y = radius * Math.sin(angle);
 
-        return new Vec2(x,y);
+        return Vec2.add(new Vec2(x,y), Offset);
     }
 
     public void draw(GuiGraphics graphics) {

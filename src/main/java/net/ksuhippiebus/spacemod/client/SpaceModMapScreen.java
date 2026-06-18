@@ -1,13 +1,26 @@
 package net.ksuhippiebus.spacemod.client;
 
+import net.ksuhippiebus.spacemod.data.starsystems.Sol;
+import net.ksuhippiebus.spacemod.data.starsystems.StarSystem;
+import net.ksuhippiebus.spacemod.space.Planet;
+import net.ksuhippiebus.spacemod.utils.Vec2;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.ksuhippiebus.spacemod.SpaceMod;
 
-import static net.ksuhippiebus.spacemod.utils.Drawing.fillCircle;
-import static net.ksuhippiebus.spacemod.utils.Drawing.fillEllipse;
+import java.util.ArrayList;
+import java.util.List;
+
+import static net.ksuhippiebus.spacemod.utils.Drawing.*;
+
 
 public class SpaceModMapScreen extends Screen {
+
+    public StarSystem CurrentSystem = new Sol();
+
+    public static final double scale = 0.1;
+    public static final double massScale = 1; //0.0000001;
 
     public SpaceModMapScreen() {
         super(Component.literal("My GUI"));
@@ -16,6 +29,9 @@ public class SpaceModMapScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        SpaceMod.LOGGER.info("init");
+
+        CurrentSystem = new Sol();
     }
 
     @Override
@@ -32,18 +48,30 @@ public class SpaceModMapScreen extends Screen {
                 0xFFFFFF
         );
 
-        //fillCircle(graphics, 100, 100, 40, 0xFFFF0000, 5);
+        Planet currentPlanet = null;
+        Planet lastPlanet = null;
+        List<Planet> queuedPlanets = new ArrayList<>();
+        if (CurrentSystem.ROOT != null) {
+            SpaceMod.LOGGER.info("CurrentSystem.ROOT != null");
+            queuedPlanets.add(CurrentSystem.ROOT);
+            // iterate over moons recursively
+            while (!queuedPlanets.isEmpty()) {
 
-        //fillEllipse(graphics, 250, 100, 80, 40, 0xFF00FF00);
+                lastPlanet = currentPlanet;
+                currentPlanet = queuedPlanets.removeFirst();
 
-        int radius = 100;
+                currentPlanet.drawPos = Vec2.add(
+                        (lastPlanet != null ? lastPlanet.drawPos : new Vec2(0,0)),
+                        currentPlanet.orbit.calcPos(ClientTimerData.ticks)
+                );
+                //[TODO] make this based on camera
+                fillCircle(graphics, this.width / 2 + (int)(currentPlanet.drawPos.x * scale), this.height / 2 + (int)(currentPlanet.drawPos.y * scale), (int)(currentPlanet.mass * massScale * scale), currentPlanet.color);
 
-        double speed = (Math.PI / 10) / 10;
-        double orbitDir = ClientTimerData.ticks * speed;
-
-        fillEllipse(graphics, this.width/2, this.height/2, radius, radius, 0xAAFFFFFF, 2);
-
-        fillCircle(graphics, (int)(this.width/2 + radius * Math.cos(orbitDir)), (int)(this.height/2 + radius * Math.sin(orbitDir)), 10, 0xFF00FF00);
+                if (!currentPlanet.moons.isEmpty()) {
+                    queuedPlanets.addAll(currentPlanet.moons);
+                }
+            }
+        }
     }
 
     @Override

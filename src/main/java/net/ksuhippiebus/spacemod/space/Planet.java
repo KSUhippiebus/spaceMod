@@ -1,5 +1,7 @@
 package net.ksuhippiebus.spacemod.space;
 
+import net.ksuhippiebus.spacemod.utils.Vec2;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +12,16 @@ public class Planet {
     public int color = 0xFF000000;
     public PlanetType type;
 
-    public List<Planet> orbitingBodies = new ArrayList<>();
+    public List<Planet> moons = new ArrayList<>();
 
     public Orbit orbit = new Orbit();
+    public Vec2 drawPos = null;
+
+    public Planet(int id) {
+        this.name = "ROOT";
+        this.id = id;
+        this.type = PlanetType.ROOT;
+    }
 
     public Planet(String name, int id, long mass, int color, PlanetType type) {
         this.name = name;
@@ -23,6 +32,6 @@ public class Planet {
     }
 
     public void addMoon(Planet moon) {
-        orbitingBodies.add(moon);
+        moons.add(moon);
     }
 }
