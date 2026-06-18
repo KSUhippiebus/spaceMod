@@ -5,6 +5,7 @@ import net.ksuhippiebus.spacemod.data.starsystems.Sol;
 import net.ksuhippiebus.spacemod.data.starsystems.StarSystem;
 import net.ksuhippiebus.spacemod.space.MapScreenCamera;
 import net.ksuhippiebus.spacemod.space.Planet;
+import net.ksuhippiebus.spacemod.utils.Drawing;
 import net.ksuhippiebus.spacemod.utils.Vec2;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -99,6 +100,22 @@ public class SpaceModMapScreen extends Screen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+
+        if (scrollY > 0) {
+            MapScreenCamera.scale *= 1.1;
+            MapScreenCamera.cameraSpeed /= 1.1;
+        }
+
+        if (scrollY < 0) {
+            MapScreenCamera.scale /= 1.1;
+            MapScreenCamera.cameraSpeed *= 1.1;
+        }
+
+        return true; // consume event
+    }
+
+    @Override
     public void tick() {
         double speed = MapScreenCamera.cameraSpeed;
 
@@ -108,11 +125,21 @@ public class SpaceModMapScreen extends Screen {
         if (right) MapScreenCamera.x += speed;
     }
 
+    private boolean isCircleVisible(int x, int y, int radius) {
+        return !(x + radius < 0 ||
+                x - radius > this.width ||
+                y + radius < 0 ||
+                y - radius > this.height);
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         //this.renderBackground(graphics);
 
         super.render(graphics, mouseX, mouseY, partialTick);
+
+        screenSizeX = this.width;
+        screenSizeY = this.height;
 
         graphics.fill(0,0,this.width, this.height, 0xFF000000);
 
@@ -152,11 +179,53 @@ public class SpaceModMapScreen extends Screen {
                         currentPlanet.orbit.calcPos(ClientTimerData.ticks)
                 );
 
+                int planetX = this.width / 2 + (int)((currentPlanet.drawPos.x - MapScreenCamera.x) * MapScreenCamera.scale);
+
+                int planetY = this.height / 2 + (int)((currentPlanet.drawPos.y - MapScreenCamera.y) * MapScreenCamera.scale);
+
+                int planetRadius = (int)(currentPlanet.mass * MapScreenCamera.massScale * MapScreenCamera.scale);
+
                 if (currentPlanet.orbit.Parent != null) {
-                    fillCircle(graphics, this.width / 2 + (int)((currentPlanet.orbit.Parent.drawPos.x - MapScreenCamera.x) * MapScreenCamera.scale), this.height / 2 + (int)((currentPlanet.orbit.Parent.drawPos.y - MapScreenCamera.y) * MapScreenCamera.scale), (int)(currentPlanet.orbit.Radius * MapScreenCamera.scale), orbitColor, orbitThickness);
+
+                    int orbitX = this.width / 2 +
+                            (int)((currentPlanet.orbit.Parent.drawPos.x - MapScreenCamera.x) * MapScreenCamera.scale);
+
+                    int orbitY = this.height / 2 +
+                            (int)((currentPlanet.orbit.Parent.drawPos.y - MapScreenCamera.y) * MapScreenCamera.scale);
+
+                    int orbitRadius =
+                            (int)(currentPlanet.orbit.Radius * MapScreenCamera.scale);
+
+                    if (isCircleVisible(orbitX, orbitY, orbitRadius)) {
+                        fillCircle(
+                                graphics,
+                                orbitX,
+                                orbitY,
+                                orbitRadius,
+                                orbitColor,
+                                orbitThickness
+                        );
+                    }
                 }
-                fillCircle(graphics, this.width / 2 + (int)((currentPlanet.drawPos.x - MapScreenCamera.x) * MapScreenCamera.scale), this.height / 2 + (int)((currentPlanet.drawPos.y - MapScreenCamera.y) * MapScreenCamera.scale), (int)(currentPlanet.mass * MapScreenCamera.massScale * MapScreenCamera.scale) + 1, 0xFF000000);
-                fillCircle(graphics, this.width / 2 + (int)((currentPlanet.drawPos.x - MapScreenCamera.x) * MapScreenCamera.scale), this.height / 2 + (int)((currentPlanet.drawPos.y - MapScreenCamera.y) * MapScreenCamera.scale), (int)(currentPlanet.mass * MapScreenCamera.massScale * MapScreenCamera.scale), currentPlanet.color);
+
+                if (isCircleVisible(planetX, planetY, planetRadius + 1)) {
+
+                    fillCircle(
+                            graphics,
+                            planetX,
+                            planetY,
+                            planetRadius + 1,
+                            0xFF000000
+                    );
+
+                    fillCircle(
+                            graphics,
+                            planetX,
+                            planetY,
+                            planetRadius,
+                            currentPlanet.color
+                    );
+                }
 
                 if (!(currentPlanet.moons.isEmpty())) {
                     queuedPlanets.addAll(currentPlanet.moons);

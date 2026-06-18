@@ -4,7 +4,6 @@ import net.ksuhippiebus.spacemod.space.Orbit;
 import net.ksuhippiebus.spacemod.space.Planet;
 import net.ksuhippiebus.spacemod.space.PlanetType;
 
-//[TODO] change to implements
 public class Sol extends StarSystem {
 
     public Planet SUN =
@@ -23,14 +22,18 @@ public class Sol extends StarSystem {
             //new Planet("Moon", 2, 7348L, 0xFFAAAAAA, PlanetType.ROCK);
             new Planet("Moon2", 3L, 0xFFAAAAAA, PlanetType.ROCK);
 
+    public Planet MARS =
+            new Planet("Mars", 20L, 0xFF9C2E35, PlanetType.ROCK);
+
     public Sol() {
-        //[TODO] FIX THIS
         ROOT = new Planet();
 
         ROOT.addMoon(SUN);
         SUN.orbit = new Orbit();
         SUN.addMoon(EARTH);
         EARTH.orbit = new Orbit(20 * 60 * 5, 0, 200, SUN);
+        SUN.addMoon(MARS);
+        MARS.orbit = new Orbit(20, 0, 400, SUN);
         EARTH.addMoon(MOON1);
         MOON1.orbit = new Orbit(20 * 30, 0, 50, EARTH);
         EARTH.addMoon(MOON2);

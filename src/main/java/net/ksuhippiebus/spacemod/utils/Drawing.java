@@ -3,6 +3,10 @@ package net.ksuhippiebus.spacemod.utils;
 import net.minecraft.client.gui.GuiGraphics;
 
 public final class Drawing {
+
+    public static int screenSizeX = 0;
+    public static int screenSizeY = 0;
+
     public static void fillCircle(
             GuiGraphics graphics,
             int centerX,
@@ -19,140 +23,91 @@ public final class Drawing {
             int centerY,
             int radius,
             int color,
-            int lineWidth // <= 0 = filled
+            int lineWidth
     ) {
+
+        if (radius <= 0) {
+            return;
+        }
+
+        // Completely off-screen
+        if (centerX + radius < 0 ||
+                centerX - radius >= screenSizeX ||
+                centerY + radius < 0 ||
+                centerY - radius >= screenSizeY) {
+            return;
+        }
+
+        int minY = Math.max(-radius, -centerY);
+        int maxY = Math.min(radius, screenSizeY - centerY - 1);
 
         // Filled circle
         if (lineWidth <= 0 || lineWidth >= radius) {
-            for (int y = -radius; y <= radius; y++) {
-                int width = (int) Math.sqrt(radius * radius - y * y);
 
-                graphics.fill(
-                        centerX - width,
-                        centerY + y,
-                        centerX + width + 1,
-                        centerY + y + 1,
-                        color
-                );
+            for (int y = minY; y <= maxY; y++) {
+
+                int width = (int)Math.sqrt(radius * radius - y * y);
+
+                int startX = Math.max(0, centerX - width);
+                int endX = Math.min(screenSizeX, centerX + width + 1);
+
+                if (startX < endX) {
+                    graphics.fill(
+                            startX,
+                            centerY + y,
+                            endX,
+                            centerY + y + 1,
+                            color
+                    );
+                }
             }
+
             return;
         }
 
         int innerRadius = radius - lineWidth;
 
-        for (int y = -radius; y <= radius; y++) {
-            int outerWidth = (int) Math.sqrt(radius * radius - y * y);
+        for (int y = minY; y <= maxY; y++) {
+
+            int outerWidth =
+                    (int)Math.sqrt(radius * radius - y * y);
 
             int innerWidth = 0;
+
             if (Math.abs(y) <= innerRadius) {
-                innerWidth = (int) Math.sqrt(innerRadius * innerRadius - y * y);
+                innerWidth =
+                        (int)Math.sqrt(innerRadius * innerRadius - y * y);
             }
 
+            int drawY = centerY + y;
+
             // Left outline segment
-            graphics.fill(
-                    centerX - outerWidth,
-                    centerY + y,
-                    centerX - innerWidth + 1,
-                    centerY + y + 1,
-                    color
-            );
+            int leftStart = Math.max(0, centerX - outerWidth);
+            int leftEnd = Math.min(screenSizeX, centerX - innerWidth + 1);
 
-            // Right outline segment
-            graphics.fill(
-                    centerX + innerWidth,
-                    centerY + y,
-                    centerX + outerWidth + 1,
-                    centerY + y + 1,
-                    color
-            );
-        }
-    }
-
-    public static void fillEllipse(
-            GuiGraphics graphics,
-            int centerX,
-            int centerY,
-            int radiusX,
-            int radiusY,
-            int color
-    ) {
-        fillEllipse(graphics, centerX, centerY, radiusX, radiusY, color, -1);
-    }
-
-    public static void fillEllipse(
-            GuiGraphics graphics,
-            int centerX,
-            int centerY,
-            int radiusX,
-            int radiusY,
-            int color,
-            int lineWidth // <= 0 = filled
-    ) {
-
-        // Filled ellipse
-        if (lineWidth <= 0 || lineWidth >= Math.min(radiusX, radiusY)) {
-
-            for (int y = -radiusY; y <= radiusY; y++) {
-
-                double normalizedY = (double) (y * y) / (radiusY * radiusY);
-
-                int width = (int) (
-                        radiusX * Math.sqrt(1.0 - normalizedY)
-                );
-
+            if (leftStart < leftEnd) {
                 graphics.fill(
-                        centerX - width,
-                        centerY + y,
-                        centerX + width + 1,
-                        centerY + y + 1,
+                        leftStart,
+                        drawY,
+                        leftEnd,
+                        drawY + 1,
                         color
                 );
             }
 
-            return;
-        }
+            // Right outline segment
+            int rightStart = Math.max(0, centerX + innerWidth);
+            int rightEnd = Math.min(screenSizeX, centerX + outerWidth + 1);
 
-        int innerRadiusX = radiusX - lineWidth;
-        int innerRadiusY = radiusY - lineWidth;
-
-        for (int y = -radiusY; y <= radiusY; y++) {
-
-            double outerNormalizedY =
-                    (double) (y * y) / (radiusY * radiusY);
-
-            int outerWidth = (int) (
-                    radiusX * Math.sqrt(1.0 - outerNormalizedY)
-            );
-
-            int innerWidth = 0;
-
-            if (Math.abs(y) <= innerRadiusY) {
-
-                double innerNormalizedY =
-                        (double) (y * y) / (innerRadiusY * innerRadiusY);
-
-                innerWidth = (int) (
-                        innerRadiusX * Math.sqrt(1.0 - innerNormalizedY)
+            if (rightStart < rightEnd) {
+                graphics.fill(
+                        rightStart,
+                        drawY,
+                        rightEnd,
+                        drawY + 1,
+                        color
                 );
             }
-
-            // Left side
-            graphics.fill(
-                    centerX - outerWidth,
-                    centerY + y,
-                    centerX - innerWidth + 1,
-                    centerY + y + 1,
-                    color
-            );
-
-            // Right side
-            graphics.fill(
-                    centerX + innerWidth,
-                    centerY + y,
-                    centerX + outerWidth + 1,
-                    centerY + y + 1,
-                    color
-            );
         }
     }
 }
