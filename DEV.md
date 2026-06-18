@@ -1,4 +1,6 @@
 TODO:
++ figure out how to get pressed keybinds other than SpaceModKeybinds.java
++ fix Drawing.java diameter arg being half of the radius instead.
 + make planet drawing based on camera.
 + remake Sol.java and StarSystem.java with implements.
 + make CurrentSystem in SpaceModMapScreen.java based on player location / 
