@@ -40,6 +40,8 @@ public class SpaceMod {
     public static final String MODID = "ksuspacemod";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    // Enables debug logging
+    public static final Boolean DEBUG = Boolean.FALSE;
     // Create a Deferred Register to hold Blocks which will all be registered under the "ksuspacemod" namespace
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "ksuspacemod" namespace

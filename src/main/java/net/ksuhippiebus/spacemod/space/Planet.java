@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Planet {
+
+    private static int nextId = 0;
+
     public String name = "";
-    public int id = 0;
+    public final int id;
     public long mass = 0;
     public int color = 0xFF000000;
     public PlanetType type;
@@ -17,15 +20,17 @@ public class Planet {
     public Orbit orbit = new Orbit();
     public Vec2 drawPos = null;
 
-    public Planet(int id) {
+    public Planet() {
         this.name = "ROOT";
-        this.id = id;
+        this.id = nextId;
+        nextId ++;
         this.type = PlanetType.ROOT;
     }
 
-    public Planet(String name, int id, long mass, int color, PlanetType type) {
+    public Planet(String name, long mass, int color, PlanetType type) {
         this.name = name;
-        this.id = id;
+        this.id = nextId;
+        nextId ++;
         this.mass = mass;
         this.color = color;
         this.type = type;

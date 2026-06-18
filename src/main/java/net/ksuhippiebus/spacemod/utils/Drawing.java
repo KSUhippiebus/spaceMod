@@ -7,25 +7,25 @@ public final class Drawing {
             GuiGraphics graphics,
             int centerX,
             int centerY,
-            int radius,
+            int diameter,
             int color
     ) {
-        fillCircle(graphics, centerX, centerY, radius, color, -1);
+        fillCircle(graphics, centerX, centerY, diameter, color, -1);
     }
 
     public static void fillCircle(
             GuiGraphics graphics,
             int centerX,
             int centerY,
-            int radius,
+            int diameter,
             int color,
             int lineWidth // <= 0 = filled
     ) {
 
         // Filled circle
-        if (lineWidth <= 0 || lineWidth >= radius) {
-            for (int y = -radius; y <= radius; y++) {
-                int width = (int) Math.sqrt(radius * radius - y * y);
+        if (lineWidth <= 0 || lineWidth >= diameter) {
+            for (int y = -diameter; y <= diameter; y++) {
+                int width = (int) Math.sqrt(diameter * diameter - y * y);
 
                 graphics.fill(
                         centerX - width,
@@ -38,10 +38,10 @@ public final class Drawing {
             return;
         }
 
-        int innerRadius = radius - lineWidth;
+        int innerRadius = diameter - lineWidth;
 
-        for (int y = -radius; y <= radius; y++) {
-            int outerWidth = (int) Math.sqrt(radius * radius - y * y);
+        for (int y = -diameter; y <= diameter; y++) {
+            int outerWidth = (int) Math.sqrt(diameter * diameter - y * y);
 
             int innerWidth = 0;
             if (Math.abs(y) <= innerRadius) {
@@ -72,32 +72,32 @@ public final class Drawing {
             GuiGraphics graphics,
             int centerX,
             int centerY,
-            int radiusX,
-            int radiusY,
+            int diameterX,
+            int diameterY,
             int color
     ) {
-        fillEllipse(graphics, centerX, centerY, radiusX, radiusY, color, -1);
+        fillEllipse(graphics, centerX, centerY, diameterX, diameterY, color, -1);
     }
 
     public static void fillEllipse(
             GuiGraphics graphics,
             int centerX,
             int centerY,
-            int radiusX,
-            int radiusY,
+            int diameterX,
+            int diameterY,
             int color,
             int lineWidth // <= 0 = filled
     ) {
 
         // Filled ellipse
-        if (lineWidth <= 0 || lineWidth >= Math.min(radiusX, radiusY)) {
+        if (lineWidth <= 0 || lineWidth >= Math.min(diameterX, diameterY)) {
 
-            for (int y = -radiusY; y <= radiusY; y++) {
+            for (int y = -diameterY; y <= diameterY; y++) {
 
-                double normalizedY = (double) (y * y) / (radiusY * radiusY);
+                double normalizedY = (double) (y * y) / (diameterY * diameterY);
 
                 int width = (int) (
-                        radiusX * Math.sqrt(1.0 - normalizedY)
+                        diameterX * Math.sqrt(1.0 - normalizedY)
                 );
 
                 graphics.fill(
@@ -112,16 +112,16 @@ public final class Drawing {
             return;
         }
 
-        int innerRadiusX = radiusX - lineWidth;
-        int innerRadiusY = radiusY - lineWidth;
+        int innerRadiusX = diameterX - lineWidth;
+        int innerRadiusY = diameterY - lineWidth;
 
-        for (int y = -radiusY; y <= radiusY; y++) {
+        for (int y = -diameterY; y <= diameterY; y++) {
 
             double outerNormalizedY =
-                    (double) (y * y) / (radiusY * radiusY);
+                    (double) (y * y) / (diameterY * diameterY);
 
             int outerWidth = (int) (
-                    radiusX * Math.sqrt(1.0 - outerNormalizedY)
+                    diameterX * Math.sqrt(1.0 - outerNormalizedY)
             );
 
             int innerWidth = 0;

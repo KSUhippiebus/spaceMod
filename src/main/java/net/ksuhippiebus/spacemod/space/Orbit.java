@@ -57,8 +57,4 @@ public class Orbit {
 
         return Vec2.add(new Vec2(x,y), Offset);
     }
-
-    public void draw(GuiGraphics graphics) {
-
-    }
 }
