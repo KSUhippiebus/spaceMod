@@ -99,6 +99,39 @@ public class SpaceModMapScreen extends Screen {
         return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
+    /*
+
+    @Override
+public boolean mouseClicked(double mouseX, double mouseY, int button) {
+
+    if (planetMenuOpen) {
+
+        int x = 10;
+        int y = 30;
+        int height = 20;
+
+        for (Planet planet : planets) {
+
+            if (mouseX >= x &&
+                mouseX < x + 120 &&
+                mouseY >= y &&
+                mouseY < y + height) {
+
+                selectedPlanet = planet;
+                planetMenuOpen = false;
+
+                return true;
+            }
+
+            y += height;
+        }
+    }
+
+    return super.mouseClicked(mouseX, mouseY, button);
+}
+
+     */
+
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 
